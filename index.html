@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script>
+        fetch('api/client/getClientInfo')
+            .then((response) => response.json())
+            .then((result) => console.log(result))
+            .then((error) => console.log(error))
+    </script>
+
+    <script>
+        const ws = new WebSocket('ws://localhost:8088');
+        add.eventListener('open', (event) => {
+            console.log('client connected')
+        });
+
+        ws.addEventListener('message', (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                console.log('message from server', data);
+            } catch (exception) {
+                console.error(exception.message)
+            }
+        })
+    </script>
+</head>
+
+</body>
+</html>
