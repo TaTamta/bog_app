@@ -178,6 +178,7 @@ class AppUserForm extends BaseElement {
                 this.lastName = "";
                 this.email = "";
                 this.phone = "";
+                this._id = ""
             })
             .catch((error) => console.log(error))
             .finally(() => target.disabled = false)
