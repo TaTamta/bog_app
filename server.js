@@ -17,9 +17,15 @@ const app = express();
 
 app.use(bodyParser.json());
 app.all('/api/:controller/:method', (req, res) => {
-    if (req.params.controller) {
-        modules[req.params.controller][req.params.method].call(null, req, res, req.body);
+    const { controller, method } = req.params;
+    const handler = Object.hasOwn(modules, controller)
+        && Object.hasOwn(modules[controller], method)
+        && modules[controller][method];
+
+    if (typeof handler !== 'function') {
+        return res.status(404).json({ error: `Unknown endpoint: ${controller}/${method}` });
     }
+    handler.call(null, req, res, req.body);
 });
 
 app.use(express.static('public'));
@@ -29,8 +35,11 @@ app.get('/', (req, res) => {
 
 
 
-// mongodb://127.0.0.1:27017
-MongoClient.connect('mongodb+srv://fluorine:Fluorine9@cluster0.u65k5.mongodb.net/?retryWrites=true&w=majority',
+// Connection string comes from the environment (see .env.example).
+// Falls back to a local MongoDB for development.
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017';
+
+MongoClient.connect(MONGODB_URI,
     (error, client) => {
         if (error) {
             return console.error(error);
@@ -63,7 +72,7 @@ MongoClient.connect('mongodb+srv://fluorine:Fluorine9@cluster0.u65k5.mongodb.net
             });
 
             ws.on('close', () => {
-                console.log('the client has connected');
+                console.log('A client has disconnected');
             });
 
             ws.onerror = () => {
